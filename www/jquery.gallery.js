@@ -10,7 +10,7 @@ $(function(){
     function loadAlbums(){
         var $loader = $('#albums_container').find('.loader');
         $loader.show();
-        var url 		= 'http://themaxtech.com/app/ajax/albums.php';
+        var url 		= 'http://schoolaccess.org.in/ios/ajax/albums.php';
         /*
         gets the names of the albums with an AJAX request to the PHP side
         */
@@ -54,7 +54,7 @@ $(function(){
         var $loader = $thumbscontainer.find('.loader');
         $loader.show();
 		
-        var url = 'http://themaxtech.com/app/ajax/thumbs.php?album='+album;
+        var url = 'http://schoolaccess.org.in/ios/ajax/thumbs.php?album='+album;
         $.get(url, function(data) {
             var countImages = data.length;
             var $ul = $('#thumbs').empty();

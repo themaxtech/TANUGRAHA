@@ -1,11 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.themaxtech.tanugraha" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0"> 
-  <name>ANUGRAHA</name>
-  <description>Helpful for parents to stay connected with school...</description>
-  <author email="maxtechapps@gmail.com" href="http://themaxtech.com">
+<widget id="com.themaxtech.tanugraha" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>ANUGRAHA</name>
+    <description>
+      Welcome to ANUGRAHA
+    </description>
+    <author email="maxtechapps@gmail.com" href="http://themaxtech.com">
         ARUN G
     </author>
-  <feature name="http://api.phonegap.com/1.0/device" />
+    <feature name="http://api.phonegap.com/1.0/device" />
     <preference name="permissions" value="none" />
     <preference name="phonegap-version" value="3.7.0" />
     <preference name="orientation" value="default" />

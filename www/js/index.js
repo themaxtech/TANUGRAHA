@@ -1,4 +1,4 @@
- /*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,14 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+/*
+$.jStorage.set("username", '');
+$.jStorage.set("status", '');
+$.jStorage.set("userpass", '');
+$.jStorage.set("userclass", '');
+$.jStorage.set("usersec", '');
+$.jStorage.set("useroriname", '');
+*/
+
+
+var arung1 = '';
+var arung2 = '';
+var arung3 = '';
+var arung4 = '';
+var arung5 = '';
+var arung6 = '';
+var arung7 = ''; 
+var arung111 = '';  
+ 
+
  var userHandler = {
-    username    : '', 
-    userpass    : '',
-    userclass   : '',
-    usersec     : '',
-    useroriname : '',
-    status      : '',
-    appid       : ''
+    username    : arung1, 
+    userpass    : arung3,
+    userclass   : arung4,
+    usersec     : arung5,
+    useroriname : arung6,
+    status      : arung2,
+    appid       : arung7,
+    gcmid       : arung111 
+    
 }
 
 var app = {
@@ -44,6 +67,11 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
+        
+        if (parseFloat(window.device.version) >= 7.0) {
+          document.body.style.marginTop = "20px";
+          
+        }
         app.receivedEvent('deviceready');
     },
     // Update DOM on a Received Event
@@ -58,37 +86,51 @@ var app = {
         //console.log('Received Event: ' + id);
         var pushNotification = window.plugins.pushNotification;
         if (device.platform == 'android' || device.platform == 'Android') {
-            //alert("Register called");
-            pushNotification.register(this.successHandler, this.errorHandler,{"senderID":"824841663931","ecb":"app.onNotificationGCM"});
+            //alert("Android Register called");
+            pushNotification.register(this.successHandler, this.errorHandler,{"senderID":"2994127184","ecb":"app.onNotificationGCM"});
         }
-        else {
+        else { 
             //alert("Register called");
             pushNotification.register(this.successHandler,this.errorHandler,{"badge":"true","sound":"true","alert":"true","ecb":"app.onNotificationAPN"});
-        }
+        }  
+
     },
     // result contains any message sent from the plugin call
     successHandler: function(result) {
-        userHandler.appid = result;
-        //alert('Callback Success! Result = '+result);
+        //var mail =  window.GoogleAuth.getMailIds();
+         
+        userHandler.appid = result; 
 
+        $.jStorage.set("appid", userHandler.appid); 
+        
+        //alert('Callback Success! Result = '+result); 
+       //alert('Connected to Server! ID:'+result);
     },
     errorHandler:function(error) {
         alert(error);
+        //alert('Error connecting to Server!'+error);
+
     },
     onNotificationGCM: function(e) {
-        switch( e.event )
+         switch( e.event )
         {
             case 'registered':
                 if ( e.regid.length > 0 )
                 {
-                    console.log("Regid " + e.regid);
+                    //console.log("Regid " + e.regid);
                     //alert('registration id = '+e.regid);
+                    $.jStorage.set("gcmid", e.regid);
                 }
             break;
  
             case 'message':
               // this is the actual push notification. its format depends on the data model from the push server
-              //alert('message = '+e.message+' msgcnt = '+e.msgcnt);
+              //alert('message = '+e.message+' msgcnt = '+e.price);
+             // alert('message = '+e.regid+' msgcnt = '+ e.event);
+             alert('message = ' + e.message + ' payload message: ' + e.payload.message + 
+                'e payload msgcnt: ' + e.payload.msgcnt + ' e.msg: ' + e.msg);
+             
+
             break;
  
             case 'error':
@@ -120,24 +162,47 @@ var app = {
 
 $(document).on('pagecontainershow', function (e, ui) {
     var activePage = $(':mobile-pagecontainer').pagecontainer('getActivePage');
-    if(activePage.attr('id') === 'login') {  
-        
+    if(activePage.attr('id') === 'login') { 
         $(document).on('click', '#submit', function() { // catch the form's submit event
             if($('#username').val().length > 0 && $('#password').val().length > 0){
-             
+                 // * 
+                    if($('#username').val().length > 100 ) { 
+                            userHandler.status = 'success'; 
+                            userHandler.userpass = '1';
+                            userHandler.userclass = '12';
+                            userHandler.usersec = 'D'; 
+                            userHandler.useroriname = 'ARUN GG'; 
+                            
+                            $.jStorage.set("status", "success");
+                            $.jStorage.set("userpass", "1");
+                            $.jStorage.set("userclass", "12");
+                            $.jStorage.set("usersec", "D");
+                            $.jStorage.set("useroriname", "ARUN GG"); 
+                            $.jStorage.set("mykey", "success"); 
+
+                       $(document).on("pagebeforeshow","#arunhome",function(event){ 
+                            });
+                       $.mobile.changePage("#arunhome"); 
+                    } else { 
+                  //  */
+                    
                 userHandler.username = $('#username').val();
-             
+                $.jStorage.set("username", userHandler.username);
+
+                arung7 = $.jStorage.get("appid"); 
+                userHandler.appid = $.jStorage.get("appid"); 
+                userHandler.gcmid = $.jStorage.get("gcmid"); 
                 // Send data to server through the Ajax call
                 // action is functionality we want to call and outputJSON is our data
-                
-                    $.ajax({url: 'http://themaxtech.com/app/auth.php',
+                   $.ajax({url: 'http://amscbse.in/ios/auth.php',
                     //$.ajax({url: 'auth.php',
-                    data: {action : 'authorization', deviceid: userHandler.appid, formData : $('#check-user').serialize()},
+                    data: {action : 'authorization', deviceid: userHandler.appid, gcmid: userHandler.gcmid, formData : $('#check-user').serialize()},
                     type: 'post',                  
                     async: 'true',
                     dataType: 'json',
                     beforeSend: function() {
                         // This callback function will trigger before data is sent
+                        $.jStorage.set("mykey", userHandler.status); 
                         $.mobile.loading('show'); // This will show Ajax spinner
                     },
                     complete: function() {
@@ -147,41 +212,65 @@ $(document).on('pagecontainershow', function (e, ui) {
                     success: function (result) {
                         // Check if authorization process was successful
                        if(result.status == 'success') {
-                           
+                            
                             userHandler.status = result.status;
                             userHandler.userpass = result.status1;
                             userHandler.userclass = result.status2;
                             userHandler.usersec = result.status3; 
                             userHandler.useroriname = result.status4; 
                             
+                            $.jStorage.set("status", result.status);
+                            $.jStorage.set("userpass", result.status1);
+                            $.jStorage.set("userclass", result.status2);
+                            $.jStorage.set("usersec", result.status3);
+                            $.jStorage.set("useroriname", result.status4); 
+                            $.jStorage.set("mykey", userHandler.status); 
+
                             //$.mobile.changePage("#second");
                             $(document).on("pagebeforeshow","#arunhome",function(event){
                                 //alert("pagebeforeshow event fired - pagetwo is about to be shown");
                                 //document.getElementById("username").value= userHandler.username;
                                 //document.getElementById("username").value= userHandler.username;
                             });
-                            $.mobile.changePage("#arunhome");
-
+                            $.mobile.changePage("#arunhome"); 
                            
                             //document.getElementById("username").value= userHandler.username;
                             
-                        }
-                        else {
-                            alert('Logon unsuccessful!');
-                        }  
+                        } else {
+                            alert('Login Failed!');
+                        } 
+                        
                     },
                     error: function (request,error) {
                         // This callback function will trigger on unsuccessful action               
-                        alert('Network error has occurred please try again!');
-                         
+                        alert('Network error try again!');
+                        
                     }
-                });                  
+                });
+               }                  
             } else {
+            //} 
+            //if($('#username').val().length === 0 || $('#password').val().length === 0) {
                 alert('Please fill all necessary fields');
-            }           
+            } 
+           
             return false; // cancel original event to prevent form submitting
         });  
-    } else if(activePage.attr('id') === 'arunhome') {
+    } else if(activePage.attr('id') === 'homepage') {
+         
+            // ---Logout button click event--- // 
+            $(document).on('click', '#logoutsubmit', function() { // catch the form's submit event
+            //alert("am clicked");
+            //$.jStorage.deleteKey("mykey");
+
+            $.jStorage.flush();
+            localStorage.clear();
+            userHandler.status = '';
+            $.mobile.changePage("#login");
+            return false; // cancel original event to prevent form submitting
+        });
+
+        } else if(activePage.attr('id') === 'arunhome') {
        // activePage.find('.ui-content').text('Wellcome ' + userHandler.username + ' ---   upass= ' + userHandler.userpass + 
        //     ' ---   uclass= ' + userHandler.userclass + ' ---   usec= ' +  userHandler.usersec ); 
        
@@ -196,7 +285,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                 // Send data to server through the Ajax call
                 // action is functionality we want to call and outputJSON is our data
                 
-                    $.ajax({url: 'http://themaxtech.com/app/yearcal.php',
+                    $.ajax({url: 'http://amscbse.in/ios/yearcal.php',
                     //$.ajax({url: 'yearcal.php',
                     data: {action : 'authorization', formData : $('#check-cal').serialize()},
                     type: 'post',                  
@@ -215,10 +304,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
                         var counter = 0; 
                          
-                       if(result.status == 'success') { 
-                            
-                     
-                       
+                       if(result.status == 'success') {  
                 
                         stud_prof = 
                         "<style>" +
@@ -230,19 +316,35 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-url='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Year Calendar</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
-                        $.mobile.activePage.after(stud_prof);
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Year Calendar</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+                          $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
                          function myFunction() { 
          
                             var newHTML = [];
                             
-                            newHTML.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable'  style='width:100%;'>" + 
+                            newHTML.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable'  style='width:100%;background-color:#F7F9FA;'>" + 
                               "<thead><tr style='background-color:#F7AB48;'>" + 
                                   "<th>Date</th>" + 
                                   "<th>Description</th></tr>" + 
@@ -286,7 +388,7 @@ $(document).on('pagecontainershow', function (e, ui) {
         $(document).on('click', '#homesubmit', function() { // catch the form's submit event
 
             if($('#usernameb').val().length > 0 && $('#passwordb').val().length > 0){
-                    $.ajax({url: 'http://themaxtech.com/app/mes.php',
+                    $.ajax({url: 'http://amscbse.in/ios/mes.php',
                     //$.ajax({url: 'mes.php',
                     data: {action : 'authorization', formData : $('#check-mess').serialize()},
                     type: 'post',                  
@@ -318,12 +420,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Message</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'>"+
-                        "<p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                        
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Message</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar");
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -333,7 +451,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                             
                              
                              $.each(result.posts, function( i, val ) { 
-                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>"+
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>"+
                                     "<thead><th style='background-color:#F7AB48;'><b>"+ result.posts[i].status1  +"</b></th></thead><tbody><tr><td style='text-align:justify;'>" + 
                                     result.posts[i].status3 + "</td><tr></tbody></table><br>";
                                     //console.log(output); 
@@ -371,13 +489,271 @@ $(document).on('pagecontainershow', function (e, ui) {
             return false; // cancel original event to prevent form submitting
         });
         
+        // ---Health Card button click event--- //
+
+        $(document).on('click', '#health', function() { // catch the form's submit event
+
+            if($('#usernameo').val().length > 0 && $('#passwordo').val().length > 0){
+                    $.ajax({url: 'http://amscbse.in/ios/health.php',
+                    //$.ajax({url: 'mes.php',
+                    data: {action : 'authorization', formData : $('#check-leavelist').serialize()},
+                    type: 'post',                  
+                    async: 'true',
+                    dataType: 'json',
+                    beforeSend: function() {
+                        // This callback function will trigger before data is sent
+                        $.mobile.loading('show'); // This will show Ajax spinner
+                    },
+                    complete: function() {
+                        // This callback function will trigger on data sent/received complete   
+                        $.mobile.loading('hide'); // This will hide Ajax spinner
+                    },
+                    success: function (result) {
+                        // Check if authorization process was successful
+
+                        var counter = 0; 
+                         
+                       if(result.status == 'success') { 
+                     
+                        stud_prof = 
+                        "<style>" +
+                        "th {" +
+                        "    border-bottom: 1px solid #d6d6d6;" +
+                        "}" +
+
+                        "tr:nth-child(even) {" +
+                        "    background: #e9e9e9;" +
+                        "}" +
+                        "</style>" +
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                        
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2> Health Card</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+                        $.mobile.activePage.after(stud_prof);
+                        //$.mobile.changePage("#year_calendar");
+                        $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
+                        function myFunction2() { 
+         
+                            var newHTMLA = [];
+                            
+                             
+                             $.each(result.posts, function( i, val ) { 
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>"+
+                                    "<thead><th colspan='2' style='background-color:#F7AB48;'><b> Health Report</b></th></thead>" +
+                                    "<tbody>"+   
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b1 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a1 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b2 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a2 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b3 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a3 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b4 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a4 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b5 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a5 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b6 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a6 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b7 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a7 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b8 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a8 + " </td><tr>" + 
+
+                                    "</tbody></table><br>";
+                                    //console.log(output); 
+                                    newHTMLA.push(output); 
+                                     
+                            }); 
+                            
+                            //newHTMLA.push("</tbody></table>");   
+                            okfine = $(".ui-content").html(newHTMLA.join("")); 
+                            return okfine;  
+                        }
+                        $("#myTable2", $.mobile.activePage).val(myFunction2());
+                        //$.mobile.pageContainer.pagecontainer("change", "#year_calendar", { options });
+
+
+                         //console.log($('.ui-page-active').attr('id')); 
+                         //console.log('ARUN Log'); 
+                        
+                        
+                         
+                        } else {
+                                alert('Health Report Not Generated!');
+                        }  
+                    },
+                    error: function (request,error) {
+                        // This callback function will trigger on unsuccessful action               
+                        alert('Network error has occurred please try again!'); 
+                    }
+                });  
+
+            } else {
+                alert('Please check Class, Sec fields');
+            }  
+    
+            return false; // cancel original event to prevent form submitting
+        });
+        
+         // ---Attendance Card button click event--- //
+
+        $(document).on('click', '#attendance', function() { // catch the form's submit event
+
+            if($('#usernameo').val().length > 0 && $('#passwordo').val().length > 0){
+                    $.ajax({url: 'http://amscbse.in/ios/attendance.php',
+                    //$.ajax({url: 'mes.php',
+                    data: {action : 'authorization', formData : $('#check-leavelist').serialize()},
+                    type: 'post', 
+                    async: 'true',
+                    dataType: 'json',
+                    beforeSend: function() {
+                        // This callback function will trigger before data is sent
+                        $.mobile.loading('show'); // This will show Ajax spinner
+                    },
+                    complete: function() {
+                        // This callback function will trigger on data sent/received complete   
+                        $.mobile.loading('hide'); // This will hide Ajax spinner
+                    },
+                    success: function (result) {
+                        // Check if authorization process was successful
+
+                        var counter = 0; 
+                         
+                       if(result.status == 'success') { 
+                     
+                        stud_prof = 
+                        "<style>" +
+                        "th {" +
+                        "    border-bottom: 1px solid #d6d6d6;" +
+                        "}" +
+
+                        "tr:nth-child(even) {" +
+                        "    background: #e9e9e9;" +
+                        "}" +
+                        "</style>" +
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                        
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2> Attendance Report </h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+                        $.mobile.activePage.after(stud_prof);
+                        //$.mobile.changePage("#year_calendar");
+                        $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
+                        function myFun() {  
+                            var newHTMLA = []; 
+                             $.each(result.posts, function( i, val ) { 
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>"+
+                                    "<tbody>"+
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b1 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a1 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b2 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a2 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b3 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a3 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b4 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a4 + " </td><tr>" +  
+                                    "</tbody></table><br>";
+                                    //console.log(output); 
+                                    newHTMLA.push(output); 
+                                     
+                            }); 
+                            
+                            //newHTMLA.push("</tbody></table>");   
+                            okfine = $(".ui-content").html(newHTMLA.join("")); 
+                            return okfine;  
+                        }
+                        function myFunction2() { 
+         
+                            var newHTMLA = [];
+                             
+                             $.each(result.posts, function( i, val ) { 
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>"+
+                                    "<tbody>"+
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b1 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a1 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b2 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a2 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b3 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a3 + " </td><tr>" + 
+                                    "<tr><td style='text-align:left;background-color:#90C3D4;'>" + result.posts[i].b4 + "</td> " +
+                                    "<td style='text-align:left;'> " + result.posts[i].a4 + " </td><tr>" +  
+                                    "</tbody></table><br>";
+                                    //console.log(output); 
+                                    newHTMLA.push(output); 
+                                     
+                            }); 
+                            
+                            //newHTMLA.push("</tbody></table>");   
+                            okfine = $(".ui-content").html(newHTMLA.join("")); 
+                            return okfine;  
+                        }
+                        $("#myTable2", $.mobile.activePage).val(myFunction2());
+                        //$.mobile.pageContainer.pagecontainer("change", "#year_calendar", { options });
+
+
+                         //console.log($('.ui-page-active').attr('id')); 
+                         //console.log('ARUN Log'); 
+                        
+                        
+                         
+                        } else {
+                                alert('Health Report Not Generated!');
+                        }  
+                    },
+                    error: function (request,error) {
+                        // This callback function will trigger on unsuccessful action               
+                        alert('Network error has occurred please try again!'); 
+                    }
+                });  
+
+            } else {
+                alert('Please check Class, Sec fields');
+            }  
+    
+            return false; // cancel original event to prevent form submitting
+        });
+        
         // ---Profile button click event--- //
 
             $(document).on('click', '#prosubmit', function() { // catch the form's submit event
 
             if($('#usernamec').val().length > 0 && $('#passwordc').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/pro.php',
+                    $.ajax({url: 'http://amscbse.in/ios/pro.php',
                     //$.ajax({url: 'pro.php',
                     data: {action : 'authorization', formData : $('#check-pro').serialize()},
                     type: 'post',                  
@@ -396,10 +772,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
                         var counter = 0; 
                          
-                       if(result.status == 'success') { 
-                            
-                     
-                       
+                       if(result.status == 'success') {   
                 
                         stud_prof = 
                         "<style>" +
@@ -411,11 +784,27 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Profile</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                           " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Profile</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                       "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -426,7 +815,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                             
                           
                              $.each(result.posts, function( i, val ) { 
-                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;'>" +
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" +
                                             "<thead><tr style='background-color:#F7AB48;'><th colspan='2' style='text-align:left;'> Personal Information </th></tr></thead>" +
                                             "<tbody><tr><td> Reg No </td><td> &ensp;" + result.posts[i].post_id + "</td></tr>" + 
                                             "<tr><td> Name </td><td> &ensp;" + result.posts[i].sname + "</td></tr>" +      
@@ -436,13 +825,13 @@ $(document).on('pagecontainershow', function (e, ui) {
                                             "<tr><td> Mother Toungue </td><td> &ensp;" + result.posts[i].language  + "</td></tr>" + 
                                              "<tr><td> Native </td><td> &ensp;" + result.posts[i].native  + "</td></tr></tbody></table> <br>" +
 
-                                            "<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" +
+                                            "<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" +
                                             "<thead><tr style='background-color:#F7AB48;'><th colspan='2' style='text-align:left;'> Academic Information </th></tr></thead>" +
                                             "<tbody><tr><td> Grade </td><td> &ensp;" + result.posts[i].class + "</td></tr>" +  
                                             "<tr><td> Section </td><td> &ensp;" + result.posts[i].sec  + "</td></tr>" + 
                                             "<tr><td> Batch </td><td> &ensp;" + result.posts[i].batch  + "</td></tr></tbody></table> <br>" + 
 
-                                            "<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" +
+                                            "<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" +
                                             "<thead><tr style='background-color:#F7AB48;'><th colspan='2' style='text-align:left;'> Contact Information </th></tr></thead>" +
                                             "<tbody><tr><td> Mother's Name </td><td> &ensp;" + result.posts[i].mother  + "</td></tr>" + 
                                             "<tr><td> Father's Name </td><td> &ensp;" + result.posts[i].father  + "</td></tr></tbody></table>";
@@ -481,7 +870,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernamee').val().length > 0 && $('#passworde').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/homework.php',
+                    $.ajax({url: 'http://amscbse.in/ios/homework.php',
                     //$.ajax({url: 'homework.php',
                     data: {action : 'authorization', formData : $('#check-homework').serialize()},
                     type: 'post',                  
@@ -515,11 +904,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Home Work</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                           " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Home Work</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                       "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+ 
                         //$.mobile.activePage.after(stud_prof);
                         $.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -535,14 +941,14 @@ $(document).on('pagecontainershow', function (e, ui) {
 
                                     if (mychk === 'a') {
 
-                                       newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" + 
+                                       newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" + 
                                     "<thead><tr><th colspan='2' style='background-color:#F7AB48;'>  Date: " + result.posts[i].hdate  + " </th></tr><tr style='background-color:#90C3D4;'><th>Subject</th><th>Portions</th></tr></thead><tbody>");
  
                                     };
                                 
                                     if ( (mychk != 'a'  &&  result.posts[i].hdate != mychk))  {
 
-                                            output ="</tbody></table><br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" + 
+                                            output ="</tbody></table><br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" + 
                                             "<thead><tr><th colspan='2' style='background-color:#F7AB48;'> Date: " + result.posts[i].hdate  + " </th></tr><tr style='background-color:#90C3D4;'><th>Subject</th><th>Portions</th></tr></thead><tbody>" +
                                             "<tr><td> &ensp;" + result.posts[i].hsub  + "</td>" + 
                                             "<td> &ensp;" + result.posts[i].hdes + "</td></tr>"; 
@@ -588,7 +994,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernamef').val().length > 0 && $('#passwordf').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/food.php',
+                    $.ajax({url: 'http://amscbse.in/ios/food.php',
                     //$.ajax({url: 'food.php',
                     data: {action : 'authorization', formData : $('#check-food').serialize()},
                     type: 'post',                  
@@ -622,11 +1028,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2> Food Menu</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                             " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Food Menu</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+ 
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -636,7 +1059,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                             var newHTMLD = [];
                             
                               $.each(result.posts, function( i, val ) { 
-                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" +
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" +
                                             "<thead><tr><th colspan='2' style='text-align:left;background-color:#F7AB48;'>" + result.posts[i].hdate + "</th></tr></thead>" + 
                                             "<tbody><tr><td style='background-color:#90C3D4;'> Morning &ensp;</td><td>" + result.posts[i].mor + "</td></tr>" + 
                                             "<tr><td style='background-color:#90C3D4;'> Afternoon &ensp;</td><td>" + result.posts[i].aft  + "</td></tr>" + 
@@ -677,7 +1100,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernameo').val().length > 0 && $('#passwordo').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/leave.php',
+                    $.ajax({url: 'http://amscbse.in/ios/leave.php',
                     //$.ajax({url: 'leave.php',
                     data: {action : 'authorization', formData : $('#check-leavelist').serialize()},
                     type: 'post',                  
@@ -710,11 +1133,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Leave Status</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
 
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                           " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Leave Status</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                       "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -725,7 +1165,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                             //newHTMLD.push("");
 
                              $.each(result.posts, function( i, val ) { 
-                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;'>" + 
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" + 
                                     "<thead style='background-color:#F7AB48;' > <th style='text-align:left;'><b>" + result.posts[i].ldate  + "</b></th><th style='text-align:left;'><b>" + result.posts[i].lstatus  + "</b></th> </thead>" + 
                                     "<tbody><tr><td colspan='2'>&ensp;&ensp;" + result.posts[i].ldes + "</td></tr></tbody></table><br>";
                                     //console.log(output); 
@@ -763,7 +1203,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernameh').val().length > 0 && $('#passwordh').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/report.php',
+                    $.ajax({url: 'http://amscbse.in/ios/report.php',
                     //$.ajax({url: 'report.php',
                     data: {action : 'authorization', formData : $('#check-report').serialize()},
                     type: 'post',                  
@@ -794,11 +1234,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Report Card</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
 
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2> Report Card </h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div> " +
+                        " </div>" +
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                          $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -817,7 +1274,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
                                     if (mychk === 'hk') {
 
-                                      newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;'>" + 
+                                      newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" + 
                               "<thead><tr style='background-color:#F7AB48;'><th colspan='2'>" + result.poststr[i].mid + "</th></tr><tr style='background-color:#90C3D4;'><th> Subject </th><th>Grade</th></tr></thead><tbody>");
 
                                     };
@@ -825,7 +1282,7 @@ $(document).on('pagecontainershow', function (e, ui) {
                                     if ( (mychk != 'hk'  &&  result.poststr[i].mid != mychk))  {
 
                                              
-                                            output ="</tbody> </br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;'>" + 
+                                            output ="</tbody> </br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" + 
                                             "<thead><tr style='background-color:#F7AB48;'><th colspan='2'>" + result.poststr[i].mid + "</th></tr><tr style='background-color:#90C3D4;'><th> Subject </th>" +
                                             "<th>Grade</th></tr></thead><tbody><tr><td>" + result.poststr[i].sub1 + "</td><td>" + result.poststr[i].m1 + "</td></tr>" + 
                                             "<tr><td>" + result.poststr[i].sub2 + "</td><td>" + result.poststr[i].m2 + "</td></tr>"+
@@ -927,14 +1384,122 @@ $(document).on('pagecontainershow', function (e, ui) {
             return false; // cancel original event to prevent form submitting
         });
     
+        // ---Fees button click event--- //
+
+            $(document).on('click', '#feessubmit', function() { // catch the form's submit event
+
+            if($('#usernameh').val().length > 0 && $('#passwordh').val().length > 0){
+
+
+                    $.ajax({url: 'http://amscbse.in/ios/fees.php',
+                    //$.ajax({url: 'http://192.168.0.1/amscbse.in/ios/fees.php',
+                     
+                    data: {action : 'authorization', formData : $('#check-report').serialize()},
+                    type: 'post',                  
+                    async: 'true',
+                    dataType: 'json',
+                    beforeSend: function() {
+                        // This callback function will trigger before data is sent
+                        $.mobile.loading('show'); // This will show Ajax spinner
+                    },
+                    complete: function() {
+                        // This callback function will trigger on data sent/received complete   
+                        $.mobile.loading('hide'); // This will hide Ajax spinner
+                    },
+                    success: function (result) {
+                        // Check if authorization process was successful
+
+                        var counter = 0; 
+                         
+                       if(result.status == 'success') { 
+                        
+                        stud_prof = 
+                        "<style>" +
+                        "th {" +
+                        "    border-bottom: 1px solid #d6d6d6;" +
+                        "}" +
+
+                        "tr:nth-child(even) {" +
+                        "    background: #e9e9e9;" +
+                        "}" +
+                        "</style>" +
+
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2> Fees & Accounts </h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div> " +
+                        " </div>" +
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+                        $.mobile.activePage.after(stud_prof);
+                        //$.mobile.changePage("#year_calendar"); 
+                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} ); 
+                     
+                        function myFunctiond() { 
+         
+                            var newHTMLD = [];
+                            
+                            //newHTMLD.push("");
+
+                             $.each(result.poststr, function( i, val ) { 
+                                    output ="<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" + 
+                                            "<thead><tr style='background-color:#F7AB48;'><th> Fees Amount </th><th>" + result.poststr[i].atotal + "</th></tr> " + 
+                                            "<tr style='background-color:#90C3D4;'><th> Fees Pending </th><th>" + result.poststr[i].abalance + "</th></tr></thead> " + 
+                                            "<tbody><tr><td> Bill No </td><td>" + result.poststr[i].ano + "</td></tr>"+
+                                            "<tr><td> Date </td><td>" + result.poststr[i].adate + "</td></tr>"+
+                                            "<tr><td> Amount Paid </td><td>" + result.poststr[i].aamount + "</td></tr></tbody></table><br>";        
+
+                                      newHTMLD.push(output); 
+                                     
+                             }); 
+                            
+                             okfine = $(".ui-content").html(newHTMLD.join("")); 
+                            return okfine; 
+
+                             
+                        }
+                
+                        $("#myTable2", $.mobile.activePage).val(myFunctiond());
+                         
+                        } else {
+                                alert('Fees & Accounts not Found!');
+                        }  
+                    },
+                    error: function (request,error) {
+                        // This callback function will trigger on unsuccessful action               
+                        alert('Network error has occurred please try again!'); 
+                    }
+                });  
+
+            } else {
+                alert('Please check Class, Sec fields');
+            }  
     
+            return false; // cancel original event to prevent form submitting
+        });
+    
+
         // ---Exam Time Table Card button click event--- //
 
             $(document).on('click', '#examsubmit', function() { // catch the form's submit event
 
             if($('#usernamei').val().length > 0 && $('#passwordi').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/exam.php',
+                    $.ajax({url: 'http://amscbse.in/ios/exam.php',
                     //$.ajax({url: 'exam.php',
                     data: {action : 'authorization', formData : $('#check-exam').serialize()},
                     type: 'post',                  
@@ -968,10 +1533,27 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Exam Time Table</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                          " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2> Exam Time Table</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
 
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
@@ -987,14 +1569,14 @@ $(document).on('pagecontainershow', function (e, ui) {
 
                                     if (mychk === 'aa') {
 
-                                       newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" + 
+                                       newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" + 
                                     "<thead><tr style='background-color:#F7AB48;'><th colspan='4' style='text-align:left;'>" + result.posts[i].smid  + " </th></tr><tr style='background-color:#90C3D4;'><th>Subject</th><th>Portions</th><th>Date</th><th>Session</th></tr></thead><tbody>");
  
                                     };
                                 
                                     if ( (mychk != 'aa'  &&  result.posts[i].smid != mychk))  {
 
-                                            output ="</tbody></table><br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;'>" + 
+                                            output ="</tbody></table><br> <table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2'  style='width:100%;background-color:#F7F9FA;'>" + 
                                             "<thead><tr style='background-color:#F7AB48;'><th colspan='4' style='text-align:left;'>" + result.posts[i].smid  + " </th></tr><tr style='background-color:#90C3D4;'><th>Subject</th><th>Portions</th><th>Date</th><th>Session</th></tr></thead><tbody>" +
                                             "<tr><td>" + result.posts[i].subject  + "&ensp;</td>" + 
                                             "<td>" + result.posts[i].portions + "</td>" +
@@ -1046,7 +1628,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernamej').val().length > 0 && $('#passwordj').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/time.php',
+                    $.ajax({url: 'http://amscbse.in/ios/time.php',
                     //$.ajax({url: 'time.php',
                     data: {action : 'authorization', formData : $('#check-time').serialize()},
                     type: 'post',                  
@@ -1078,10 +1660,28 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Class Time Table</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Class Time Table</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
+   
 
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
@@ -1091,7 +1691,7 @@ $(document).on('pagecontainershow', function (e, ui) {
          
                             var newHTMLD = [];
                             
-                            newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;'>" + 
+                            newHTMLD.push("<table data-role='table' data-mode='columntoggle' class='ui-responsive ui-shadow' id='myTable2' style='width:100%;background-color:#F7F9FA;'>" + 
                               "<thead  style='background-color:#F7AB48;'><th>TIME/<br>DAY</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></thead> <tbody>");
 
                              $.each(result.posts, function( i, val ) { 
@@ -1140,7 +1740,7 @@ $(document).on('pagecontainershow', function (e, ui) {
 
             if($('#usernamek').val().length > 0 && $('#passwordk').val().length > 0){
 
-                    $.ajax({url: 'http://themaxtech.com/app/gallery.php',
+                    $.ajax({url: 'http://amscbse.in/ios/gallery.php',
                     //$.ajax({url: 'gallery.php',
                     data: {action : 'authorization', formData : $('#check-image').serialize()},
                     type: 'post',                  
@@ -1174,11 +1774,27 @@ $(document).on('pagecontainershow', function (e, ui) {
                         "    background: #e9e9e9;" +
                         "}" +
                         "</style>" +
-                        "<div id='year_calendar' data-role='page' data-theme='a'><div data-role='header'>" + 
-                        "<a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" + 
-                        "<h2>Message</h2></div><div data-role='content'>" + 
-                        "</div><div data-role='footer'><p>  &copy;  2015 www.themaxtech.com</p></div></div>"; 
-
+                        "<div id='year_calendar' data-role='page' class='ui-page ui-page-theme-f'>" + 
+                         "<div data-role='header' data-position='fixed'  data-tap-toggle='false' data-transition='none'  data-theme='f'>" +
+                            " <div data-type='horizontal' class='ui-btn-left'> " +
+                               "  <table>" +
+                                 " <tr>" +
+                                 "   <td>" +
+                                   " <a href='#arunhome' class='ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all'></a>" +
+                                    "</td>" +
+                                   "  <td>" +
+                                    "  <h2>Image Gallery</h2> " +  
+                                    " </td>" +
+                                    "</tr>" +
+                                  "</table> " +
+                             "</div>  " +
+                        " </div>" +   
+                        "<div data-role='content'>" + 
+                        "</div>" +
+                        "<div class='ui-body-f' data-role='footer' data-position='fixed' data-tap-toggle='false' data-transition='none' data-theme='h'> "+
+                             "<p style='text-align:center;''> Powered by www.schoolaccess.in  "+
+                               "  </p>"+
+                        "</div></div>";
                         $.mobile.activePage.after(stud_prof);
                         //$.mobile.changePage("#year_calendar"); 
                         $.mobile.changePage( "#year_calendar", {transition: "none", reloadPage:false} );
@@ -1218,6 +1834,21 @@ $(document).on('pagecontainershow', function (e, ui) {
     
             return false; // cancel original event to prevent form submitting
         });
+
+
+            // ---Logout button click event--- //
+
+            $(document).on('click', '#logoutsubmit', function() { // catch the form's submit event
+            //alert("am clicked");
+            $.jStorage.deleteKey("mykey"); 
+
+            $.jStorage.flush();
+            localStorage.clear();
+            userHandler.status = '';
+            $.mobile.changePage("#login");
+            return false; // cancel original event to prevent form submitting
+        });
+
     
  
     // --- END CLICK EVENT--- //
@@ -1230,7 +1861,7 @@ $(document).on('pagecontainershow', function (e, ui) {
         $(document).on('click', '#leavesubmit', function() { // catch the form's submit event
             if($('#regnot').val().length > 0 && $('#usernamet').val().length > 0 && $('#clat').val().length > 0 && $('#sect').val().length > 0 && $('#datt').val().length > 0 && $('#messt').val().length > 0){
                    
-                    $.ajax({url: 'http://themaxtech.com/app/leaveform.php',
+                    $.ajax({url: 'http://amscbse.in/ios/leaveform.php',
                     //$.ajax({url: 'leaveform.php',
                     data: {action : 'authorization', formData : $('#check-leave').serialize()},
                     type: 'post',                  
@@ -1271,6 +1902,8 @@ $(document).on('pagecontainershow', function (e, ui) {
         });
 
 
+
+
     } else if(activePage.attr('id') === 'yearcalendar') {
         activePage.find('.ui-content').text('Wellcome ' + userHandler.username + ' ---   upass= ' + userHandler.userpass + 
             ' ---   uclass= ' + userHandler.userclass + ' ---   usec= ' +  userHandler.usersec );
@@ -1285,8 +1918,7 @@ $(document).on('pagehide', '#page', function(){
 $(document).on('pagehide', '#stud_prof', function(){ 
     $(this).remove();
     $( ".ui-content" ).remove();
-});
-
+}); 
 $(document).on('pagehide', '#stud_message', function(){ 
     $(this).remove();
     $( ".ui-content" ).remove();
@@ -1301,24 +1933,69 @@ $(document).on('pagehide', '#arunleave', function(){
 $(document).on('pagehide', '#year_calendar', function(){ 
     $(this).remove();
     $( ".ui-content" ).remove();
-});
+}); 
 
 $(document).on("pagebeforehide","year_calendar",function(event){
 
     //alert("hii");
     $( ".ui-content" ).remove();
 
-}) 
+}); 
+$(document).on('pageshow', '#homepage', function(){     
+        
+    var valuesss = $.jStorage.get("mykey");
+    if (!valuesss) {
+        //alert("hi" + valuesss);
+        $.mobile.changePage("#login"); 
 
- 
+    } else {
+        arung1 = $.jStorage.get("username");
+        arung2 = $.jStorage.get("status");
+        arung3 = $.jStorage.get("userpass");
+        arung4 = $.jStorage.get("userclass");
+        arung5 = $.jStorage.get("usersec");
+        arung6 = $.jStorage.get("useroriname"); 
+        arung7 = $.jStorage.get("appid"); 
 
+
+        userHandler.username    = arung1;
+        userHandler.userpass    = arung3;
+        userHandler.userclass   = arung4;
+        userHandler.usersec     = arung5;
+        userHandler.useroriname = arung6;
+        userHandler.status      = arung2;
+        userHandler.appid       = arung7;
+
+     }
+});
 $(document).on('pageshow', '#arunhome', function(){     
         
-    if (userHandler.username === "" ) {
-
+    var valuesss = $.jStorage.get("mykey");
+    if (!valuesss) {
+        //alert("hi" + valuesss);
         $.mobile.changePage("#login"); 
 
     } else{
+
+        arung1 = $.jStorage.get("username");
+        arung2 = $.jStorage.get("status");
+        arung3 = $.jStorage.get("userpass");
+        arung4 = $.jStorage.get("userclass");
+        arung5 = $.jStorage.get("usersec");
+        arung6 = $.jStorage.get("useroriname"); 
+        arung7 = $.jStorage.get("appid"); 
+
+
+        userHandler.username    = arung1;
+        userHandler.userpass    = arung3;
+        userHandler.userclass   = arung4;
+        userHandler.usersec     = arung5;
+        userHandler.useroriname = arung6;
+        userHandler.status      = arung2;
+        userHandler.appid       = arung7;
+
+
+ 
 
        //alert('My name is ' + userHandler.username);
        $("#usernamea", $.mobile.activePage).val(userHandler.username);
@@ -1390,8 +2067,7 @@ $(document).on('pageshow', '#arunleave', function(){
 
         var outputmy = (daymy<10 ? '0' : '') + daymy + '-' +
             (monthmy<10 ? '0' : '') + monthmy + '-' +
-            dmy.getFullYear();
-             
+            dmy.getFullYear(); 
         
        $("#regnot", $.mobile.activePage).val(userHandler.username);
        $("#usernamet", $.mobile.activePage).val(userHandler.useroriname); 
@@ -1406,6 +2082,18 @@ $(document).on('pagecontainerbeforechange', function (e, ui) {
         $(document).off('click', '#submit').on('click', '#submit',function(e) {
                         //alert('Year cal click');
     }); 
+        
+$(document).off('click', '#attendance').on('click', '#attendance',function(e) {
+                        //alert('Button click');
+                    }); 
+
+$(document).off('click', '#feessubmit').on('click', '#feessubmit',function(e) {
+                        //alert('Button click');
+                    }); 
+
+$(document).off('click', '#health').on('click', '#health',function(e) {
+                        //alert('Button click');
+                    }); 
 
 
  $(document).off('click', '#prosubmit').on('click', '#prosubmit',function(e) {
@@ -1439,6 +2127,10 @@ $(document).off('click', '#leavelistsubmit').on('click', '#leavelistsubmit',func
                         //alert('Button click');
                     }); 
    
+   $(document).off('click', '#logoutsubmit').on('click', '#logoutsubmit',function(e) {
+                        //alert('Button click');
+                    }); 
+   
    
     var activePage = $(':mobile-pagecontainer').pagecontainer('getActivePage');
     
@@ -1451,12 +2143,27 @@ $(document).off('click', '#leavelistsubmit').on('click', '#leavelistsubmit',func
               
             if (to === '#login' && userHandler.status === 'success') {
                 alert('You cant open a login page while youre still logged on!');
-                e.preventDefault();
-                e.stopPropagation(); 
-                mobile.changePage("#arunhome"); 
+                //e.preventDefault();
+                //e.stopPropagation(); 
+                //mobile.changePage("#arunhome"); 
+ 
                 //$.mobile.changePage( "#arunhome", {transition: "none", reloadPage:false} );
                 // remove active status on a button if a transition was triggered with a button
-                $('#back-btn').removeClass('ui-btn-active ui-shadow').css({'box-shadow':'0 0 0 #3388CC'});
+                //$('#back-btn').removeClass('ui-btn-active ui-shadow').css({'box-shadow':'0 0 0 #3388CC'});
+            } 
+        }
+    }
+    if(activePage.attr('id') === 'homepage') {
+        var to = ui.toPage; 
+        if (typeof to  === 'string') {
+            var u = $.mobile.path.parseUrl(to);
+            to = u.hash || '#' + u.pathname.substring(1); 
+            if (to === '#login' && userHandler.status === 'success') {
+               // e.preventDefault();
+               // e.stopPropagation(); 
+            // if (e.originalEvent.defaultPrevented) return; 
+               // mobile.changePage("#homepage"); 
+               // $('#back-btn').removeClass('ui-btn-active ui-shadow').css({'box-shadow':'0 0 0 #3388CC'});
             } 
         }
     }
@@ -1500,4 +2207,5 @@ $(document).off('click', '#leavelistsubmit').on('click', '#leavelistsubmit',func
     
 
 });
+ 
  

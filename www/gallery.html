@@ -2,9 +2,10 @@
 <html>
     <head>
         <meta charset="UTF-8" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <title>Wonderwall</title>
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
-        <style type="text/css" media="screen">@import "themes/theme.css";</style>
+        <style type="text/css" media="screen">@import "themes/theme.css";</style> 
         <script type="text/javascript" src="js/jquery.min.js"></script>
         <script src="jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
         <script type="text/javascript" charset="utf-8">
@@ -42,6 +43,7 @@
                 text-decoration: none;
             }
         </style>
+        
     </head>
     <body>
          
@@ -49,11 +51,11 @@
        
         <!-- The list of albums -->
         
-        <div id="albums_container"  class="current">
+        <div id="albums_container"  class="current" data-theme="f">
             <div class="toolbar">
                 <h1>Albums</h1>
-                <a href="index.html#arunhome"  rel="external" style='color: #fff; text-decoration: none;'><h3>Home</h3></a>
-                 
+                <a class="back" href="index.html" rel="external">Back</a>
+                  
             </div>
             <div class="loader" style="display:none;"></div>
             <ul id="albums" class="edgetoedge" style="display:none;">
